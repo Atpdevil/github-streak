@@ -114,11 +114,16 @@ def git(*args: str) -> str:
     Raises RuntimeError on non-zero exit.
     """
     cmd = ["git"] + list(args)
+    env = os.environ.copy()
+    env["PYTHONIOENCODING"] = "utf-8"
     result = subprocess.run(
         cmd,
         cwd=str(SCRIPT_DIR),
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
+        env=env,
     )
     if result.returncode != 0:
         stderr = result.stderr.strip()
@@ -178,8 +183,8 @@ def main() -> None:
         git("add", "streak.json")
 
         commit_msg = (
-            f"\U0001f525 Streak #{total}  \u2014  "
-            f"{now.strftime('%Y-%m-%d %H:%M')}  \u2014  {quote}"
+            f"Streak #{total} - "
+            f"{now.strftime('%Y-%m-%d %H:%M')} - {quote}"
         )
         git("commit", "-m", commit_msg)
         log(f"Committed: {commit_msg}")
